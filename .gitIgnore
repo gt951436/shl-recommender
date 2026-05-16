@@ -1,3 +1,60 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Environment variables / secrets
 .env
-.venv
-.__pycache__
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Logs
+*.log
+
+# Python build files
+build/
+dist/
+*.egg-info/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Temporary files
+*.tmp
+*.bak
+
+# SQLite databases
+*.sqlite3
+
+# mypy
+.mypy_cache/
+
+# Ruff / lint cache
+.ruff_cache/
+
+# pyright
+.pyright/
+
+# dotenv backups
+.env.*
+!.env.example
