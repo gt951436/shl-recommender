@@ -1,60 +1,81 @@
-# Python cache
+# =========================
+# Python cache files
+# =========================
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtual environment
+# =========================
+# Virtual environments
+# =========================
 .venv/
 venv/
 env/
+ENV/
 
+# =========================
 # Environment variables / secrets
+# =========================
 .env
+.env.*
+!.env.example
 
-# VS Code
+# =========================
+# IDE / Editor files
+# =========================
 .vscode/
-
-# PyCharm
 .idea/
+*.swp
+*.swo
 
-# macOS
-.DS_Store
+# =========================
+# Jupyter Notebook
+# =========================
+.ipynb_checkpoints/
 
-# Windows
-Thumbs.db
+# =========================
+# Testing / coverage
+# =========================
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
 
-# Logs
-*.log
+# =========================
+# Type checker / linter caches
+# =========================
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.dmypy.json
 
-# Python build files
+# =========================
+# Build / distribution
+# =========================
 build/
 dist/
 *.egg-info/
+.eggs/
 
-# Testing / coverage
-.pytest_cache/
-.coverage
-htmlcov/
+# =========================
+# Logs
+# =========================
+*.log
 
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
+# =========================
+# OS generated files
+# =========================
+.DS_Store
+Thumbs.db
 
-# Temporary files
-*.tmp
-*.bak
-
-# SQLite databases
+# =========================
+# Local database files
+# =========================
 *.sqlite3
 
-# mypy
-.mypy_cache/
-
-# Ruff / lint cache
-.ruff_cache/
-
-# pyright
-.pyright/
-
-# dotenv backups
-.env.*
-!.env.example
+# =========================
+# Temporary files
+# =========================
+*.tmp
+*.bak
+*.temp
