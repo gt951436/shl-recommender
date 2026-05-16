@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 One-time script to:
   1. Fetch the SHL catalog JSON
@@ -126,7 +125,7 @@ def main(local_json: str | None = None) -> None:
     logger.info(f"  Metadata:         {settings.catalog_metadata_path}")
     logger.info("=" * 60)
     logger.info("\nYou can now start the server:")
-    logger.info("  uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload")
+    logger.info("  uvicorn main:app --host 0.0.0.0 --port 8000 --reload")
 
 
 def _print_catalog_summary(products) -> None:

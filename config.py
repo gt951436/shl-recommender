@@ -62,5 +62,5 @@ def get_settings() -> Settings:
     return Settings()
 
 
-# Module-level alias so you can do: from app.config import settings
+# Module-level alias so you can do: from config import settings
 settings = get_settings()
