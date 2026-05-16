@@ -106,15 +106,29 @@ def _load_raw_json(
     if local_path and Path(local_path).exists():
         logger.info(f"Loading catalog from local file: {local_path}")
         with open(local_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+            raw_text = f.read()
+            cleaned_text = (
+                raw_text
+                .replace("\r","")
+                .replace("\x00","")
+            )
+            return json.loads(cleaned_text,strict=False)
 
     logger.info(f"Fetching catalog from: {url}")
     try:
         response = httpx.get(url, timeout=timeout, follow_redirects=True)
         response.raise_for_status()
-        data = response.json()
+        raw_text = response.text
+        cleaned_text = (
+            raw_text
+            .replace("\r","")
+            .replace("\x00","")
+        )
+        data = json.loads(cleaned_text,strict=False)
+        
         logger.info(
-            f"Received catalog JSON. Top-level type: {type(data).__name__}. "
+            f"Received catalog JSON. "
+            f"Top-level type: {type(data).__name__}. "
             f"Keys: {list(data.keys()) if isinstance(data, dict) else 'N/A (list)'}"
         )
         return data
@@ -345,7 +359,13 @@ def _parse_test_type(raw: dict) -> tuple[list[str], list[str]]:
     labels: list[str] = []
 
     # Try 'type' key first (most common)
-    raw_type = raw.get("type") or raw.get("testType") or raw.get("test_type") or raw.get("Type")
+    raw_type = (
+        raw.get("type")
+         or raw.get("testType") 
+         or raw.get("test_type") 
+         or raw.get("Type")
+         or raw.get("keys")
+    )
 
     if isinstance(raw_type, str):
         # Could be "K" or "P,S" or "Knowledge & Skills"
@@ -386,7 +406,7 @@ def _parse_test_type(raw: dict) -> tuple[list[str], list[str]]:
 
 def _parse_duration(raw: dict) -> Optional[str]:
     """Extract duration as a clean string."""
-    dur = _get_str(raw, ["duration", "Duration", "time", "testDuration"])
+    dur = _get_str(raw, ["duration", "Duration", "time", "testDuration", "duration_raw"])
     if not dur:
         return None
     # Normalize: "25" → "25 minutes", "25 minutes" → "25 minutes"
@@ -397,7 +417,7 @@ def _parse_duration(raw: dict) -> Optional[str]:
 
 def _parse_languages(raw: dict) -> list[str]:
     """Extract list of supported language strings."""
-    raw_langs = raw.get("languages") or raw.get("language") or raw.get("Languages")
+    raw_langs = raw.get("languages") or raw.get("language") or raw.get("Languages") or raw.get("languages_raw")
     if not raw_langs:
         return []
     if isinstance(raw_langs, str):

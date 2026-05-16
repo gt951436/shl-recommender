@@ -13,6 +13,8 @@ venv/
 env/
 ENV/
 
+convo_traces/
+
 # =========================
 # Environment variables / secrets
 # =========================
