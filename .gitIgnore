@@ -13,7 +13,9 @@ venv/
 env/
 ENV/
 
+# newer created files and folders
 convo_traces/
+data/
 
 # =========================
 # Environment variables / secrets
