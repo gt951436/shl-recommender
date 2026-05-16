@@ -20,7 +20,7 @@ import faiss
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
-from app.models import CatalogProduct
+from models import CatalogProduct
 
 logger = logging.getLogger(__name__)
 

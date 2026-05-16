@@ -1,14 +1,11 @@
 """
-app/config.py
-─────────────────────────────────────────────────────────────────────────────
 Central configuration using pydantic-settings.
 All values come from environment variables (or .env file).
 Import `settings` anywhere in the app — it's a singleton.
-─────────────────────────────────────────────────────────────────────────────
 """
+
 from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
 
 class Settings(BaseSettings):
     """
@@ -20,6 +17,7 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",          # Silently ignore extra env vars
+        case_sensitive=False,
     )
 
     # ── LLM ───────────────────────────────────────────────────────────────

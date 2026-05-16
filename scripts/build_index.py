@@ -27,9 +27,9 @@ from pathlib import Path
 # ── Make sure the project root is on the Python path ──────────────────────
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.catalog.fetcher import fetch_catalog, save_raw_catalog, _load_raw_json
-from app.catalog.indexer import build_faiss_index
-from app.config import settings
+from catalog.fetcher import fetch_catalog, save_raw_catalog, _load_raw_json
+from catalog.indexer import build_faiss_index
+from config import settings
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Logging setup

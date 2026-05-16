@@ -21,7 +21,7 @@ from urllib.parse import urljoin, urlparse
 
 import httpx
 
-from app.models import CatalogProduct
+from models import CatalogProduct
 
 logger = logging.getLogger(__name__)
 
