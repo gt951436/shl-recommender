@@ -14,7 +14,7 @@ env/
 ENV/
 
 # newer created files and folders
-convo_traces/
+#convo_traces/
 data/
 
 # =========================

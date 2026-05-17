@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 class CatalogRetriever:
     """
-    Singleton retriever that holds the embedding model + FAISS index in memory.
+    Singleton retriever that holds the embedding model + FAISS index in memory after load().
     Call `search(query, top_k)` to get the most relevant catalog products.
     """
 
@@ -49,7 +49,7 @@ class CatalogRetriever:
     def load(self) -> None:
         """
         Load model, FAISS index, and metadata from disk.
-        Called once at application startup (from app/main.py lifespan).
+        Called once at application startup (from main.py lifespan).
         Raises RuntimeError if the index hasn't been built yet.
         """
         # ── Validate index files exist ─────────────────────────────────────
@@ -152,8 +152,20 @@ class CatalogRetriever:
                 return product
         return None
 
+    def get_product_by_url(self, url: str) -> CatalogProduct | None:
+        """
+        Look up a product by URL.
+        Normalizes trailing slash before comparing.
+        Used by nodes.py to replace LLM-generated names with canonical ones.
+        """
+        normalized = url.rstrip("/") + "/"
+        for p in self._products:
+            if p.url.rstrip("/") + "/" == normalized:
+                return p
+        return None
+    
     def get_all_products(self) -> list[CatalogProduct]:
-        """Return all products. Used for validation (checking URLs exist in catalog)."""
+        """Return all products. Used for URL validation (checking URLs exist in catalog)."""
         return self._products
 
     def get_valid_urls(self) -> set[str]:
@@ -173,12 +185,19 @@ def build_retrieval_query(messages: list[dict]) -> str:
     """
     Build a rich semantic search query from the conversation history.
 
-    Why use the full history and not just the latest message?
-    Example from C9: Turn 4 says "Add AWS and Docker" — if we only embed
-    "Add AWS and Docker", we miss the context that this is a Java/Spring/SQL
-    Senior IC role. By using the full conversation, we get a query that
-    covers all constraints, so retrieval finds both the AWS/Docker tests
-    AND reinforces the existing shortlist items.
+    Example — C9 Turn 4: "Add AWS and Docker"
+      Latest message only: "Add AWS and Docker"
+        → FAISS finds: AWS tests, Docker tests ✓
+        → MISSES: Java, Spring, SQL context (already established earlier)
+      Full user history: "Senior Full-Stack Java Spring REST SQL AWS Docker"
+                         "Backend-leaning, Java and Spring primary..."
+                         "Senior IC, owns services..."
+                         "Add AWS and Docker"
+        → FAISS finds: Java ✓, Spring ✓, SQL ✓, AWS ✓, Docker ✓
+        → Retrieval reinforces the complete existing context
+        
+    The latest message is repeated for higher semantic weight
+    (it represents the most current constraint).
 
     Strategy:
     - Concatenate all user messages (not assistant messages — the assistant
