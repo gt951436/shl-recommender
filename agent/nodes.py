@@ -114,7 +114,7 @@ def _extract_shortlist_from_message(content: str) -> list[dict]:
 # Node 2: retrieve_catalog
 # ─────────────────────────────────────────────────────────────────────────────
 
-def make_retrieve_catalog_node(retriever: CatalogRetriever, top_k: int = 20):
+def make_retrieve_catalog_node(retriever: CatalogRetriever, top_k: int = 10):
     """
     Factory that creates the retrieve_catalog node with the retriever injected.
 

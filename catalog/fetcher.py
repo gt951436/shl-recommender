@@ -55,6 +55,12 @@ JOB_SOLUTION_SIGNALS = [
     "hiring solution",
     "talent solution",
     "workforce solution",
+    
+    # Generic noisy bundled solutions 
+    "entry level customer service", 
+    "hotel front desk solution", 
+    "retail solution", 
+    "sales solution",
 ]
 
 

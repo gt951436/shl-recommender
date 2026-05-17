@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     catalog_metadata_path: str = "data/catalog_metadata.json"
 
     # ── Retrieval ─────────────────────────────────────────────────────────
-    retrieval_top_k: int = 20
+    retrieval_top_k: int = 10
 
     # ── App ───────────────────────────────────────────────────────────────
     app_host: str = "0.0.0.0"

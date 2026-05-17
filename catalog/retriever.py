@@ -92,7 +92,7 @@ class CatalogRetriever:
     def search(
         self,
         query: str,
-        top_k: int = 20,
+        top_k: int = 10,
     ) -> list[CatalogProduct]:
         """
         Semantic search the catalog. Returns the top_k most similar products.
@@ -135,7 +135,63 @@ class CatalogRetriever:
             f"Search complete: {len(results)} products retrieved for query: "
             f"'{query[:100]}...'" if len(query) > 100 else f"'{query}'"
         )
+        reults = self._rerank_results(query, results)
         return results
+    
+    def _rerank_results(self, query:str, results:list[CatalogProduct],) -> list[CatalogProduct]:
+        """ 
+        Lightweight semantic reranking after FAISS retrieval.
+
+        Boosts:
+            - leadership/personality alignment
+            - technical relevance
+            - industrial safety relevance
+
+        Penalizes:
+            - generic entry-level solutions
+            - unrelated bundled solutions
+        """
+        q = query.lower()
+        scored = []
+        for product in results:
+            score = 0
+            text = (
+                f"{product.name} "
+                f"{product.description or ''} "
+                f"{' '.join(product.test_type_labels)}"
+            ).lower()
+            
+            # Leadership boosting 
+            if any(t in q for t in ["leadership", "executive", "director", "cxo"]): 
+                if "opq" in text: 
+                    score += 10 
+                if "leadership" in text: 
+                    score += 8 
+                if "personality" in text: 
+                    score += 5 
+                
+                # Penalize irrelevant entry-level products 
+                if "entry level" in text: 
+                    score -= 10
+                
+            # Technical boosting 
+            if any(t in q for t in ["java", "spring", "backend", "aws", "docker"]): 
+                if any(t in text for t in ["java", "spring", "sql", "aws", "docker"]): 
+                    score += 8 
+                if "knowledge & skills" in text: 
+                    score += 5
+                
+            # Industrial safety boosting 
+            if any(t in q for t in ["safety", "plant", "industrial", "chemical"]): 
+                if any(t in text for t in [ "safety", "dependability", "industrial", "manufacturing", ]): 
+                    score += 10
+                
+            scored.append((score, product))
+            
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return [p for _, p in scored]
+        
+
 
     def get_product_by_name(self, name: str) -> CatalogProduct | None:
         """
@@ -207,7 +263,7 @@ def build_retrieval_query(messages: list[dict]) -> str:
     - Extract any explicit role/technology mentions
     """
     user_messages = [
-        m["content"] for m in messages if m["role"] == "user"
+        m["content"].strip() for m in messages if m["role"] == "user"
     ]
 
     if not user_messages:
@@ -219,10 +275,23 @@ def build_retrieval_query(messages: list[dict]) -> str:
     prior = " ".join(user_messages[:-1]) if len(user_messages) > 1 else ""
 
     # Build query: latest message is included twice for higher weight
-    parts = []
+    query_parts = []
     if prior:
-        parts.append(prior)
-    parts.append(latest)
-    parts.append(latest)  # Repeat latest for emphasis
+        query_parts.append(prior)
+    query_parts.append(latest)
+    #query_parts.append(latest)  # Repeat latest for emphasis
+    latest_lower = latest.lower()
 
-    return " ".join(parts)
+    # Leadership semantic expansion
+    if any(term in latest_lower for term in ["leadership", "leader", "director", "executive", "cxo", "vp", ]):
+        query_parts.append("senior  executive personality strategic thinking " "leadership assessment opq managerial decision making")
+        
+    # Technical hiring expansion
+    if any(term in latest_lower for term in ["java", "spring", "backend", "engineer", "developer", "aws", "docker", "sql", ]): 
+        query_parts.append("software engineering backend technical assessment " "knowledge skills coding reasoning")
+        
+    # Safety / industrial expansion
+    if any(term in latest_lower for term in ["safety", "plant", "operator", "industrial", "chemical", "manufacturing",]): 
+        query_parts.append( "industrial safety dependability compliance reliability " "manufacturing operations" )
+        
+    return " ".join(query_parts)
